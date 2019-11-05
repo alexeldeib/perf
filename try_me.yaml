@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: &name perf-debug
+  labels:
+    app: *name
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: *name
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: *name
+    spec:
+      # certain iotop and bpftrace/bcc tools require hostNetowkr and hostPID
+      hostNetwork: true
+      hostPID: true
+      nodeName: default-ae90a13e-5da68c2c000006
+      # nodeSelector:
+      #   node-role.kubernetes.io/master: ''
+      # tolerations:
+      #   - key: "node-role.kubernetes.io/master" # useful to run on masters to investigate etcd latency
+      #     operator: "Exists"
+      #
+      # # above OR below needed ONLY, not both
+      # #
+      # affinity:
+      #   nodeAffinity:
+      #     requiredDuringSchedulingIgnoredDuringExecution:
+      #       nodeSelectorTerms:
+      #       - matchExpressions:
+      #         - key: node-role.kubernetes.io/master
+      #           operator: Exists
+      containers:
+      - image: alexeldeib/bpf:v0.0.1-1020
+        command: ["sleep", "infinity"] # this pod deliberately sleeps forever so you can exec into it and play with bcc, bptrace, and friends.
+        name: bpf
+        resources: {}
+        # privileged required for basic functionality of kernel probes and ebpf
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /proc
+          name: proc
+        - mountPath: /sys
+          name: sys
+        - mountPath: /mnt/hostMount
+          name: host
+      volumes:
+      - name: proc
+        hostPath:
+          path: /proc
+      - name: sys
+        hostPath:
+          path: /sys
+      - name: host
+        hostPath:
+          path: /
+      
