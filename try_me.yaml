@@ -18,7 +18,7 @@ spec:
       # certain iotop and bpftrace/bcc tools require hostNetowkr and hostPID
       hostNetwork: true
       hostPID: true
-      nodeName: default-ae90a13e-5da68c2c000006
+      nodeName: default-ae90a13e-5da68c2c000016
       # nodeSelector:
       #   node-role.kubernetes.io/master: ''
       # tolerations:
@@ -34,8 +34,18 @@ spec:
       #       - matchExpressions:
       #         - key: node-role.kubernetes.io/master
       #           operator: Exists
+      # affinity:
+      #   podAffinity:
+      #     requiredDuringSchedulingIgnoredDuringExecution:
+      #     - labelSelector:
+      #         matchExpressions:
+      #         - key: app
+      #           operator: In
+      #           values:
+      #           - draft-oms
+      #       topologyKey: "kubernetes.io/hostname"
       containers:
-      - image: alexeldeib/bpf:v0.0.1-1020
+      - image: alexeldeib/bpf:v0.0.1
         command: ["sleep", "infinity"] # this pod deliberately sleeps forever so you can exec into it and play with bcc, bptrace, and friends.
         name: bpf
         resources: {}

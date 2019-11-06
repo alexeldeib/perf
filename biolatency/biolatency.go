@@ -76,7 +76,6 @@ func New(mBiolatency *stats.Int64Measure) (map[string]int, error) {
 			return nil, errors.New("expected to parse 1 match and 3 submatches")
 		}
 
-		// bucketStr, unit := matches[0][3], matches[0][4]
 		count, err := strconv.Atoi(matches[0][3])
 		if err != nil {
 			return nil, err
@@ -94,10 +93,12 @@ func New(mBiolatency *stats.Int64Measure) (map[string]int, error) {
 		// 	bucket = bucket * int(mega)
 		// }
 		litter.Dump("writing bucket  ", bucket, "  count", count)
+
 		// count represents a bucket in the histogram. We map it to the oc histogram.
 		for n := 0; n < count; n++ {
 			stats.Record(context.Background(), mBiolatency.M(int64(bucket)))
 		}
+		out[matches[0][2]] = count
 	}
 	return out, nil
 }

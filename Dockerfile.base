@@ -1,3 +1,4 @@
+# base install excluding custom go script
 FROM ubuntu@sha256:550b0f99b69b0a1dec737f606ee294546466ff281036d4be6aff09bc1ac006fe
 
 RUN apt update -y
@@ -11,8 +12,17 @@ RUN apt-get install -y bpfcc-tools
 RUN apt-get install -y bpftrace 
 RUN apt-get install -y blktrace 
 RUN apt-get install -y linux-tools-common
-RUN apt-get install -y linux-headers-5.0.0-1018-azure # linux-headers-5.0.0-1020-azure
-RUN apt-get install -y linux-tools-5.0.0-1018-azure # linux-tools-5.0.0-1020-azure
+RUN apt-get install -y linux-headers-5.0.0-1020-azure linux-headers-5.0.0-1018-azure
+RUN apt-get install -y linux-tools-5.0.0-1020-azure linux-tools-5.0.0-1018-azure
 RUN apt-get install -y magic-wormhole 
 RUN apt-get install -y build-essential
 RUN git clone https://github.com/brendangregg/FlameGraph.git /flamegraph
+RUN wget --quiet -O - https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - \
+ && VERSION=node_12.x \
+ && DISTRO="$(lsb_release -s -c)" \
+ && echo "deb https://deb.nodesource.com/$VERSION $DISTRO main" | tee /etc/apt/sources.list.d/nodesource.list \
+ && echo "deb-src https://deb.nodesource.com/$VERSION $DISTRO main" | tee -a /etc/apt/sources.list.d/nodesource.list \
+ && apt update -y \
+ && apt install -y nodejs
+RUN npm i -g 0x
+RUN npm i -g stackvis
