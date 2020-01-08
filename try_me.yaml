@@ -9,16 +9,11 @@ spec:
   selector:
     matchLabels:
       app: *name
-  strategy: {}
   template:
     metadata:
       labels:
         app: *name
     spec:
-      # certain iotop and bpftrace/bcc tools require hostNetowkr and hostPID
-      hostNetwork: true
-      hostPID: true
-      nodeName: default-ae90a13e-5da68c2c000016
       # nodeSelector:
       #   node-role.kubernetes.io/master: ''
       # tolerations:
@@ -44,29 +39,33 @@ spec:
       #           values:
       #           - draft-oms
       #       topologyKey: "kubernetes.io/hostname"
+      # certain iotop and bpftrace/bcc tools require hostNetowkr and hostPID
+      hostNetwork: true
+      hostPID: true
       containers:
-      - image: alexeldeib/bpf:v0.0.1
-        command: ["sleep", "infinity"] # this pod deliberately sleeps forever so you can exec into it and play with bcc, bptrace, and friends.
-        name: bpf
+      - image: alexeldeib/perf:bpftrace
+        name: ubuntu
+        command: ["sleep", "infinity"]
         resources: {}
-        # privileged required for basic functionality of kernel probes and ebpf
         securityContext:
           privileged: true
         volumeMounts:
-        - mountPath: /proc
-          name: proc
+        - mountPath: /lib/modules
+          name: mod
+        - mountPath: /usr/src
+          name: src
         - mountPath: /sys
           name: sys
-        - mountPath: /mnt/hostMount
-          name: host
       volumes:
-      - name: proc
-        hostPath:
-          path: /proc
-      - name: sys
-        hostPath:
+      - hostPath:
+          path: /lib/modules
+          type: ""
+        name: mod
+      - hostPath:
+          path: /usr/src
+          type: ""
+        name: src
+      - hostPath:
           path: /sys
-      - name: host
-        hostPath:
-          path: /
-      
+          type: ""
+        name: sys
