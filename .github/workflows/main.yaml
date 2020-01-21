@@ -37,6 +37,5 @@ jobs:
                 docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
                 TAG=$(date -Ihours | tr :+ -)
                 echo "TAG: ${TAG}"
-                docker buildx build --output type=local,dest=${GITHUB_WORKSPACE}/.docker/cache --cache-from=${GITHUB_WORKSPACE}/.docker/cache --cache-to=${GITHUB_WORKSPACE}/.docker/cache --build-arg UBUNTU_TAG=${{ matrix.distro }} -f ./images/ubuntu/Dockerfile -t ${DOCKER_USER}/bpf${{ matrix.distro }}:${TAG} .
-                ls ${GITHUB_WORKSPACE}/.docker/cache
+                docker buildx build --build-arg UBUNTU_TAG=${{ matrix.distro }} -f ./images/ubuntu/Dockerfile -t ${DOCKER_USER}/bpf${{ matrix.distro }}:${TAG} .
                 docker push ${DOCKER_USER}/bpf${{ matrix.distro }}:${TAG} 
