@@ -4,7 +4,7 @@ FROM ubuntu:${distro_tag} as base
 
 ARG distro=xenial
 ARG bcc_ref="v0.12.0"
-ARG LLVM_VERSION="6"
+ARG LLVM_VERSION="6.0"
 ENV DISTRO=$distro
 ENV LLVM_VERSION=$LLVM_VERSION
 
