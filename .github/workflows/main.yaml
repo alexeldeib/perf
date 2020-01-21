@@ -16,7 +16,7 @@ jobs:
         runs-on: ubuntu-18.04
         strategy:
           matrix:
-            llvm: [6.0, 7, 8, 9]
+            llvm: [7, 8, 9]
         steps:
             - uses: actions/checkout@master
             - name: Set up Docker Buildx
@@ -41,7 +41,7 @@ jobs:
         runs-on: ubuntu-16.04
         strategy:
           matrix:
-            llvm: [6.0, 7, 8, 9]
+            llvm: [7, 8, 9]
         steps:
             - uses: actions/checkout@master
             - name: Set up Docker Buildx
