@@ -12,11 +12,36 @@ env:
     DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
 
 jobs:
-    bpftrace:
-        runs-on: ubuntu-latest
+    bpftrace_bionic:
+        runs-on: ubuntu-18.04
         strategy:
-            matrix:
-                distro: [16.04, 18.04]
+          matrix:
+            llvm: [6.0, 7, 8, 9]
+        steps:
+            - uses: actions/checkout@master
+            - name: Set up Docker Buildx
+              id: buildx
+              uses: crazy-max/ghaction-docker-buildx@v1
+              with:
+                  version: latest
+            - name: Available platforms
+              run: echo ${{ steps.buildx.outputs.platforms }}
+            - name: Run Buildx
+              env:
+                DISTRO: bionic
+                DISTRO_TAG: 18.04
+              run: |
+                set -eux
+                docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+                TAG=$(date -Ihours | tr :+ -)
+                echo "TAG: ${TAG}"
+                docker buildx build --push --build-arg distro=${DISTRO} --build-arg distro_tag=${DISTRO_TAG} --build-arg=LLVM_VERSION=${{ matrix.llvm }} -f ./images/ubuntu/Dockerfile -t ${DOCKER_USER}/bpf${DISTRO_TAG}:${TAG} .
+                docker push ${DOCKER_USER}/bpf${DISTRO_TAG}:${TAG}
+    bpftrace_xenial:
+        runs-on: ubuntu-16.04
+        strategy:
+          matrix:
+            llvm: [6.0, 7, 8, 9]
         steps:
             - uses: actions/checkout@master
             - name: Set up Docker Buildx
@@ -35,5 +60,5 @@ jobs:
                 docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
                 TAG=$(date -Ihours | tr :+ -)
                 echo "TAG: ${TAG}"
-                docker buildx build --push --build-arg distro=${DISTRO} --build-arg distro_tag=${DISTRO_TAG} -f ./images/ubuntu/Dockerfile -t ${DOCKER_USER}/bpf${DISTRO_TAG}:${TAG} .
+                docker buildx build --push --build-arg distro=${DISTRO} --build-arg distro_tag=${DISTRO_TAG} --build-arg=LLVM_VERSION=${{ matrix.llvm }} -f ./images/ubuntu/Dockerfile -t ${DOCKER_USER}/bpf${DISTRO_TAG}:${TAG} .
                 docker push ${DOCKER_USER}/bpf${DISTRO_TAG}:${TAG}
