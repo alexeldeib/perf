@@ -26,9 +26,16 @@ jobs:
                   version: latest
             - name: Available platforms
               run: echo ${{ steps.buildx.outputs.platforms }}
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                path: ${GITHUB_WORKSPACE}/.docker/cache
+                key: ${{ matrix.distro }}-docker-build
             - name: Run Buildx
               run: |
+                set -eux
                 docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
                 TAG=$(date -Ihours | tr :+ -)
-                docker buildx build --build-arg UBUNTU_TAG=${{ matrix.distro }} -f ./images/ubuntu/Dockerfile -t ${DOCKER_USER}/bpf${{ matrix.distro }}:${TAG} .
+                echo "TAG: ${TAG}"
+                docker buildx build --cache-from=${GITHUB_WORKSPACE}/.docker/cache --cache-to--build-arg UBUNTU_TAG=${{ matrix.distro }} -f ./images/ubuntu/Dockerfile -t ${DOCKER_USER}/bpf${{ matrix.distro }}:${TAG} .
                 docker push ${DOCKER_USER}/bpf${{ matrix.distro }}:${TAG} 
