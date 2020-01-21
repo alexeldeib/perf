@@ -49,7 +49,7 @@ RUN git clone https://github.com/iovisor/bcc.git \
 
 RUN git clone https://github.com/iovisor/bpftrace.git \
     && mkdir bpftrace/build; cd bpftrace/build \
-    && cmake -DCMAKE_BUILD_TYPE=Release ..  \
+    && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local ..  \
     && make \
     && make install
 
