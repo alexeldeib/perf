@@ -1,10 +1,10 @@
 ARG distro_tag=16.04
-ARG distro=xenial
-ARG bcc_ref="v0.12.0"
-ARG LLVM_VERSION="8"
 
 FROM ubuntu:${distro_tag} as base
 
+ARG distro=xenial
+ARG bcc_ref="v0.12.0"
+ARG LLVM_VERSION="8"
 ENV DISTRO=$distro
 ENV LLVM_VERSION=$LLVM_VERSION
 
