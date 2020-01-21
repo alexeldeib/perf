@@ -1,0 +1,34 @@
+name: build images
+
+on:
+    push:
+        branches:
+            - master
+    schedule:
+        - cron: "0 4 * * *"
+
+env:
+    DOCKER_USER: ${{ secrets.DOCKER_USER }}
+    DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
+
+jobs:
+    bpftrace:
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                distro: [16.04, 18.04, 19.04]
+        steps:
+            - uses: actions/checkout@master
+            - name: Set up Docker Buildx
+              id: buildx
+              uses: crazy-max/ghaction-docker-buildx@v1
+              with:
+                  version: latest
+            - name: Available platforms
+              run: echo ${{ steps.buildx.outputs.platforms }}
+            - name: Run Buildx
+              run: |
+                docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+                TAG=$(date -Ihours | tr :+ -)
+                docker buildx build --build-arg UBUNTU_TAG=${{ matrix.distro }} -f ./images/ubuntu/Dockerfile -t ${DOCKER_USER}/bpf${{ matrix.distro }}:${TAG} .
+                docker push ${DOCKER_USER}/bpf${{ matrix.distro }}:${TAG} 
