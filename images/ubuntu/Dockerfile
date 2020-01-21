@@ -15,6 +15,7 @@ RUN apt update -y && apt -y install bison \
     libllvm6.0 \
     llvm-6.0-dev \
     libclang-6.0-dev \
+    clang-6.0 \
     python \
     zlib1g-dev \
     libelf-dev
@@ -24,6 +25,8 @@ RUN git clone https://github.com/iovisor/bcc.git \
     && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local .. \
     && make \
     && make install
+
+RUN apt install  -y
 
 RUN git clone https://github.com/iovisor/bpftrace.git \
     && mkdir bpftrace/build; cd bpftrace/build \
