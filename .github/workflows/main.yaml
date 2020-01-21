@@ -26,11 +26,6 @@ jobs:
                   version: latest
             - name: Available platforms
               run: echo ${{ steps.buildx.outputs.platforms }}
-            - name: Cache node modules
-              uses: actions/cache@v1
-              with:
-                path: ${GITHUB_WORKSPACE}/.docker/cache
-                key: ${{ matrix.distro }}-docker-build
             - name: Run Buildx
               run: |
                 set -eux
