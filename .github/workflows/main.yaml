@@ -32,5 +32,4 @@ jobs:
                 docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
                 TAG=$(date -Ihours | tr :+ -)
                 echo "TAG: ${TAG}"
-                docker buildx build --build-arg UBUNTU_TAG=${{ matrix.distro }} -f ./images/ubuntu/Dockerfile -t ${DOCKER_USER}/bpf${{ matrix.distro }}:${TAG} .
-                docker push ${DOCKER_USER}/bpf${{ matrix.distro }}:${TAG} 
+                docker buildx build --push --build-arg UBUNTU_TAG=${{ matrix.distro }} -f ./images/ubuntu/Dockerfile -t ${DOCKER_USER}/bpf${{ matrix.distro }}:${TAG} .

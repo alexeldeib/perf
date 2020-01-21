@@ -32,6 +32,5 @@ RUN git clone https://github.com/iovisor/bcc.git \
 #     && make install
 
 FROM ubuntu:${UBUNTU_TAG}
-COPY --from=base /usr/bin/python /usr/bin/python
+RUN apt update -y && apt install -y python3
 COPY --from=base /usr/local/bcc /usr/
-RUN apt update -y && apt install -y python
