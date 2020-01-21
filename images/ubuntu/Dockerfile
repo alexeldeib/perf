@@ -12,10 +12,10 @@ RUN apt update -y && apt -y install bison \
     flex \
     git \
     libedit-dev \
-    llvm-7-dev \
-    llvm-7-runtime \
-    libclang-7-dev \
-    clang-7 \
+    llvm-6.0-dev \
+    llvm-6.0-runtime \
+    libclang-6.0-dev \
+    clang-6.0 \
     python \
     zlib1g-dev \
     libelf-dev
