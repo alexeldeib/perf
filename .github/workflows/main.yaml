@@ -35,7 +35,7 @@ jobs:
                 docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
                 TAG=$(date -Ihours | tr :+ -)
                 echo "TAG: ${TAG}"
-                docker buildx build --push --build-arg distro=${DISTRO} --build-arg distro_tag=${DISTRO_TAG} --build-arg=LLVM_VERSION=${{ matrix.llvm }} -f ./images/ubuntu/Dockerfile -t ${DOCKER_USER}/bpf${DISTRO_TAG}:${TAG} .
+                docker buildx build --load --build-arg distro=${DISTRO} --build-arg distro_tag=${DISTRO_TAG} --build-arg=LLVM_VERSION=${{ matrix.llvm }} -f ./images/ubuntu/Dockerfile -t ${DOCKER_USER}/bpf${DISTRO_TAG}:${TAG} .
                 docker push ${DOCKER_USER}/bpf${DISTRO_TAG}:${TAG}
     bpftrace_xenial:
         runs-on: ubuntu-16.04
@@ -60,5 +60,5 @@ jobs:
                 docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
                 TAG=$(date -Ihours | tr :+ -)
                 echo "TAG: ${TAG}"
-                docker buildx build --push --build-arg distro=${DISTRO} --build-arg distro_tag=${DISTRO_TAG} --build-arg=LLVM_VERSION=${{ matrix.llvm }} -f ./images/ubuntu/Dockerfile -t ${DOCKER_USER}/bpf${DISTRO_TAG}:${TAG} .
+                docker buildx build --load --build-arg distro=${DISTRO} --build-arg distro_tag=${DISTRO_TAG} --build-arg=LLVM_VERSION=${{ matrix.llvm }} -f ./images/ubuntu/Dockerfile -t ${DOCKER_USER}/bpf${DISTRO_TAG}:${TAG} .
                 docker push ${DOCKER_USER}/bpf${DISTRO_TAG}:${TAG}
