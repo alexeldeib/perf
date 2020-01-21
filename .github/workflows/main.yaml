@@ -27,10 +27,13 @@ jobs:
             - name: Available platforms
               run: echo ${{ steps.buildx.outputs.platforms }}
             - name: Run Buildx
+              env:
+                DISTRO: xenial
+                DISTRO_TAG: 16.04
               run: |
                 set -eux
                 docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
                 TAG=$(date -Ihours | tr :+ -)
                 echo "TAG: ${TAG}"
-                docker buildx build --push --build-arg UBUNTU_TAG=${{ matrix.distro }} -f ./images/ubuntu/Dockerfile -t ${DOCKER_USER}/bpf${{ matrix.distro }}:${TAG} .
-                docker push ${DOCKER_USER}/bpf${{ matrix.distro }}:${TAG}
+                docker buildx build --push --build-arg distro=${DISTRO},distro_tag=${DISTRO_TAG} -f ./images/ubuntu/Dockerfile -t ${DOCKER_USER}/bpf${DISTRO_TAG}:${TAG} .
+                docker push ${DOCKER_USER}/bpf${DISTRO_TAG}:${TAG}

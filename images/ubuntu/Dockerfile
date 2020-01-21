@@ -1,20 +1,19 @@
-ARG UBUNTU_TAG=16.04
-
-FROM ubuntu:${UBUNTU_TAG} as base
-
+ARG distro_tag=16.04
+ARG distro=xenial
 ARG bcc_ref="v0.12.0"
 ARG LLVM_VERSION="8"
+
+FROM ubuntu:${distro_tag} as base
+
+ENV DISTRO=$distro
 ENV LLVM_VERSION=$LLVM_VERSION
 
-# There is no need need for most of this once
-# https://github.com/iovisor/bcc/pull/2677 merges, as this is all to build
-# the bcc static dependencies. This would save ~5 minutes of CI time
 RUN apt-get update && apt-get install -y curl gnupg &&\
     llvmRepository="\n\
-deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic main\n\
-deb-src http://apt.llvm.org/bionic/ llvm-toolchain-bionic main\n\
-deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-${LLVM_VERSION} main\n\
-deb-src http://apt.llvm.org/bionic/ llvm-toolchain-bionic-${LLVM_VERSION} main\n" &&\
+deb http://apt.llvm.org/${DISTRO}/ llvm-toolchain-${DISTRO} main\n\
+deb-src http://apt.llvm.org/${DISTRO}/ llvm-toolchain-${DISTRO} main\n\
+deb http://apt.llvm.org/${DISTRO}/ llvm-toolchain-${DISTRO}-${LLVM_VERSION} main\n\
+deb-src http://apt.llvm.org/${DISTRO}/ llvm-toolchain-${DISTRO}-${LLVM_VERSION} main\n" &&\
     echo $llvmRepository >> /etc/apt/sources.list && \
     curl -L https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
 
@@ -42,27 +41,19 @@ RUN apt-get update && apt-get install -y \
       python3 \
       quilt
 
-# Build BCC and install static libs
-RUN mkdir -p /src && git clone https://github.com/iovisor/bcc /src/bcc
+RUN git clone https://github.com/iovisor/bcc.git \
+    && mkdir bcc/build; cd bcc/build \
+    && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local .. \
+    && make \
+    && make install
 
-RUN cd /src/bcc && \
-    git reset --hard $bcc_ref && \
-    mkdir build && \
-    cd build && \
-    cmake -DCMAKE_INSTALL_PREFIX=/usr/local ../ && make -j$(nproc) && \
-    make install &&  mkdir -p /usr/local/lib && \
-    cp src/cc/libbcc.a /usr/local/lib/libbcc.a && \
-    cp src/cc/libbcc-loader-static.a /usr/local/lib/libbcc-loader-static.a && \
-    cp ./src/cc/libbcc_bpf.a /usr/local/lib/libbpf.a
+RUN git clone https://github.com/iovisor/bpftrace.git \
+    && mkdir bpftrace/build; cd bpftrace/build \
+    && cmake -DCMAKE_BUILD_TYPE=Release ..  \
+    && make \
+    && make install
 
-RUN git clone https://github.com/iovisor/bpftrace /src/bpftrace
-
-RUN cd /src/bpftrace && \
-    mkdir build && \
-    cd build && \
-    cmake -DCMAKE_BUILD_TYPE="Release" -DWARNINGS_AS_ERRORS:BOOL=ON \
-    -DSTATIC_LINKING:BOOL=ON -DSTATIC_LIBC:BOOL=OFF \
-    -DEMBED_LLVM:BOOL=OFF -DEMBED_CLANG:BOOL=OFF \
-    -DEMBED_LIBCLANG_ONLY:BOOL=OFF \
-    -DLLVM_VERSION=8  ../ && \
-    make install
+FROM ubuntu:${distro_tag}
+RUN apt update -y && apt install -y python3
+COPY --from=base /usr/local/bcc /usr/
+COPY --from=base /usr/local/bpftrace /usr/
