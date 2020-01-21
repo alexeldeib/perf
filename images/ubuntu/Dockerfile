@@ -25,12 +25,13 @@ RUN git clone https://github.com/iovisor/bcc.git \
     && make \
     && make install
 
-# RUN git clone https://github.com/iovisor/bpftrace.git \
-#     && mkdir bpftrace/build; cd bpftrace/build \
-#     && cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local/bpftrace \
-#     && make \
-#     && make install
+RUN git clone https://github.com/iovisor/bpftrace.git \
+    && mkdir bpftrace/build; cd bpftrace/build \
+    && cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local/bpftrace \
+    && make \
+    && make install
 
 FROM ubuntu:${UBUNTU_TAG}
 RUN apt update -y && apt install -y python3
 COPY --from=base /usr/local/bcc /usr/
+COPY --from=base /usr/local/bpftrace /usr/
