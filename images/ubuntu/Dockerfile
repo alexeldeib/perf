@@ -54,19 +54,3 @@ RUN git clone https://github.com/iovisor/bpftrace.git \
     && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_CXX_FLAGS="-include /usr/local/include/bcc/compat/linux/bpf.h -D__LINUX_BPF_H__" ..  \
     && make \
     && make install
-
-RUN ls /usr/local/share/bcc -l
-
-
-# Build final image
-FROM ubuntu:${distro_tag}
-
-RUN apt update -y && apt install -y python3
-
-COPY --from=base /usr/local/lib/libbcc.a /usr/local/lib/libbcc.a
-COPY --from=base /usr/local/lib/libbcc-loader-static.a /usr/local/lib/libbcc-loader-static.a
-COPY --from=base /usr/local/lib/libbcc_bpf.a /usr/local/lib/libbcc_bpf.a
-COPY --from=base /usr/local/share/bcc/tools /usr/local/share/bcc/tools
-
-COPY --from=base /usr/local/bin/bpftrace /usr/local/bin/bpftrace
-COPY --from=base /usr/local/share/bpftrace/tools /usr/local/share/bpftrace/tools
